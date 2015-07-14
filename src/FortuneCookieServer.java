@@ -1,72 +1,86 @@
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.io.*;
 
 public class FortuneCookieServer extends Thread
 {
    private ServerSocket serverSocket;
-   private int[] cookies = new int[50];
-   private List<Integer> sentCookies = new ArrayList<Integer>();
+   List<String> cookies = new ArrayList<String>();
+   private List<String> sentCookies = new ArrayList<String>();
    public FortuneCookieServer(int port) throws IOException
    {
       serverSocket = new ServerSocket(port);
-      serverSocket.setSoTimeout(10000);
-      for(int i=0;i<cookies.length;i++) {
-        cookies[i] = i;
+      // Creates the cookies
+      for (int i=0;i<100;i++) {
+        cookies.add("Cookie#"+i);
       }
       
    }
 
    public void run()
    {
+     try
+     {
+       System.out.println("Waiting for client on port " +
+           serverSocket.getLocalPort() + "...");
+     Socket server = serverSocket.accept();
+     System.out.println("Just connected to "
+         + server.getRemoteSocketAddress());
+     DataInputStream in = null ;
+     DataOutputStream out = null ;
       while(true)
-      { 
-         try
-         {
-            System.out.println("Waiting for client on port " +
-            serverSocket.getLocalPort() + "...");
-            Socket server = serverSocket.accept();
-            System.out.println("Just connected to "
-                  + server.getRemoteSocketAddress());
-            DataInputStream in =
-                  new DataInputStream(server.getInputStream());
-          //  System.out.println(in.readUTF());
-            int numCookiesRequested = Integer.parseInt(in.readUTF());
-            int[] output = sendCookies(numCookiesRequested);
-            System.out.println(output[0]);
-            DataOutputStream out =
-                 new DataOutputStream(server.getOutputStream());
-            out.writeUTF("Here are your cookies" +output);
-            server.close();
-         }catch(SocketTimeoutException s)
+      {      
+            if (in == null) {
+            in = new DataInputStream(server.getInputStream());                 
+            }
+            if (out == null) {
+              out = new DataOutputStream(server.getOutputStream());
+              }
+            String input = in.readUTF();
+            System.out.println("Got request to give " +input+ " number of cookies");
+            int numCookiesRequested = Integer.parseInt(input);
+            String[] output = sendCookies(numCookiesRequested);
+            if (output[0].equals("-1")) {
+              out.writeUTF("Sorry, no cookies for you!!");
+            } else {
+            System.out.println(Arrays.toString(output));
+            
+            out.writeUTF("Here are your cookies" +Arrays.toString(output));
+            System.out.println("Number of cookie remaining are :" +cookies.size());
+           // server.close();
+         }}}
+         catch(SocketTimeoutException s)
          {
             System.out.println("Socket timed out!");
-            break;
          }catch(IOException e)
          {
             e.printStackTrace();
-            break;
          }
       }
-   }
+
    
-   public int[] sendCookies(int numCookiesRequested) {
-     int[] cookiesToBeSent = new int[numCookiesRequested];
+   public String[] sendCookies(int numCookiesRequested) {
+     String[] cookiesToBeSent = new String[numCookiesRequested]; //TODO handle a few obvious error cases
      for (int i = 0; i< numCookiesRequested; i++) {
-       if (!sentCookies.contains(cookies[i])) {
-       cookiesToBeSent[i] = cookies[i];
-       sentCookies.add(cookies[i]);
-     } else {
-       //TODO try a different cookie
-     }
-     }
+           Random r = new Random();
+           if (cookies.size() > numCookiesRequested) {
+           int randomint = r.nextInt(cookies.size());
+           cookiesToBeSent[i] = cookies.get(randomint);
+           sentCookies.add(cookies.get(randomint));
+           cookies.remove(randomint);
+       } else {
+         cookiesToBeSent[0] = "-1";
+         }
+     } 
      return cookiesToBeSent;
    }
+   
+   
    public static void main(String [] args)
    {
-   
-    
    
       //int port = Integer.parseInt(args[0]);
       try
