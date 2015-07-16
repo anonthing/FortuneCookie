@@ -7,7 +7,7 @@ public class Client
    public static void main(String [] args)
    {
       String serverName = "localhost";
-      int port = 9998;
+      int port = 9997;
       try
       {
         
@@ -42,6 +42,9 @@ public class Client
          }
          if (input.contains("encrypt")) {
            System.out.println("Sorry, not implemented here");
+           String inputToServer = s.nextLine();
+           out.writeUTF(inputToServer);
+           System.out.println(":" + in.readUTF());
          }
          } 
          
