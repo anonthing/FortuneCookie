@@ -7,7 +7,7 @@ public class Client
    public static void main(String [] args)
    {
       String serverName = "localhost";
-      int port = 9997;
+      int port = Integer.parseInt(args[0]);
       try
       {
         
@@ -24,7 +24,12 @@ public class Client
                         new DataInputStream(inFromServer);
          Scanner s = new Scanner(System.in);
          while(true) {
-           System.out.println("Please enter one of the following to get started, Fortune Cookie, Encrypt/Decrypt, close");
+           if (port == 9997) {
+           System.out.println("Please enter one of the following to get started Encrypt/Decrypt, close");
+           } 
+           if (port == 9998) {
+             System.out.println("Please enter one of the following to get started FortuneCookie, close");
+           }
          String input = s.nextLine();
          if (input.equals("close")) {
            client.close();
@@ -40,11 +45,13 @@ public class Client
          
          System.out.println(":" + in.readUTF());
          }
-         if (input.contains("encrypt")) {
-           System.out.println("Sorry, not implemented here");
+         if (input.equalsIgnoreCase("encrypt") || input.equalsIgnoreCase("decrypt")) {
            String inputToServer = s.nextLine();
            out.writeUTF(inputToServer);
            System.out.println(":" + in.readUTF());
+         } 
+         if (input.equalsIgnoreCase("close")) {
+           client.close();
          }
          } 
          

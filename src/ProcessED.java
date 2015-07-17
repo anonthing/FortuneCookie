@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Base64;
 
 
 public class ProcessED extends Thread {
@@ -30,13 +31,13 @@ public class ProcessED extends Thread {
              out = new DataOutputStream(server.getOutputStream());
              }
            String input = in.readUTF();
-           int output = encryptDecrypt(input);
+           byte[] output = encryptDecrypt(input);
            
            if(input.charAt(0)=='e' || input.charAt(0)=='E') {
-            out.writeUTF("The encrypted code is: " +output);
+            out.writeUTF("The encrypted code is: " +new String(output));
            }
            if(input.charAt(0)=='d' || input.charAt(0)=='D') {
-             out.writeUTF("The decrypted code is: " +output);
+             out.writeUTF("The decrypted code is: " +new String(output));
            }
            
           // server.close();
@@ -50,7 +51,7 @@ public class ProcessED extends Thread {
         }
      }
   
-  public int encryptDecrypt(String input) {
+  public byte[] encryptDecrypt(String input) {
 //  for(int i=1;input[i]!='\0';i++) {
 //      temp[i-1]=input[i];
 //      i++
@@ -58,12 +59,12 @@ public class ProcessED extends Thread {
   String temp = input.substring(1, input.length());
   
    if(input.charAt(0)=='e' || input.charAt(0)=='E')  {
-      return temp.hashCode();
+      return Base64.getEncoder().encode(temp.getBytes());
    }
    else if(input.charAt(0)=='d' || input.charAt(0)=='D') {
-      return temp.hashCode();
+      return Base64.getDecoder().decode(temp.getBytes());
    } else {
-     return 0;
+     return null;
    }
       
  }
