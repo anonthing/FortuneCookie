@@ -47,7 +47,8 @@ public class ProcessED extends Thread {
            System.out.println("Socket timed out!");
         }catch(IOException e)
         {
-           e.printStackTrace();
+          System.out.println("Connection closed");
+          // e.printStackTrace();
         }
      }
   

@@ -100,7 +100,7 @@ public class EncryptDecryptServer extends Thread
             System.out.println("Socket timed out!");
          }catch(IOException e)
          {
-            e.printStackTrace();
+            //e.printStackTrace();
          }
       }
 
