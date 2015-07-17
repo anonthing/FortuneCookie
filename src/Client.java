@@ -38,6 +38,7 @@ public class Client
           out.writeUTF(inputToServer);
 
           System.out.println(":" + in.readUTF());
+          client.close();
         }
         if (input.equalsIgnoreCase("encrypt") || input.equalsIgnoreCase("decrypt")) {
 

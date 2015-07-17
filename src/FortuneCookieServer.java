@@ -50,14 +50,15 @@ public class FortuneCookieServer extends Thread
             
             out.writeUTF("Here are your cookies" +Arrays.toString(output));
             System.out.println("Number of cookie remaining are :" +cookies.size());
-            server.close();
+            //server.close();
          }}}
          catch(SocketTimeoutException s)
          {
             System.out.println("Socket timed out!");
          }catch(IOException e)
          {
-            e.printStackTrace();
+           System.out.println("Client Connection closed");
+           // e.printStackTrace();
          }
       }
 
