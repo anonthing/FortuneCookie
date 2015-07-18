@@ -7,9 +7,14 @@ import java.io.*;
 
 public class FortuneCookieServer extends Thread
 {
+  // server socket on where the server will be serving
   private ServerSocket serverSocket;
+  // A tiny little database of where we will be storing our cookins
   List<String> cookies = new ArrayList<String>();
+  // A list where we will update the cookies that are sent to the client
   private List<String> sentCookies = new ArrayList<String>();
+  
+  // Ctor
   public FortuneCookieServer(int port) throws IOException
   {
     serverSocket = new ServerSocket(port);
@@ -24,20 +29,21 @@ public class FortuneCookieServer extends Thread
   { 
     while(true)
     { 
+      Socket server = null;
       try
       {
         System.out.println("Waiting for client on port " +
             serverSocket.getLocalPort() + "...");
-        Socket server = serverSocket.accept();
+        server = serverSocket.accept();
         System.out.println("Just connected to "
             + server.getRemoteSocketAddress());
         DataInputStream in = null ;
         DataOutputStream out = null ;
 
-        if (in == null) {
+        if (in == null) { // create new input stream if not exists
           in = new DataInputStream(server.getInputStream());                 
         }
-        if (out == null) {
+        if (out == null) { // create new output stream if not exists
           out = new DataOutputStream(server.getOutputStream());
         }
         String input = in.readUTF();
@@ -58,14 +64,21 @@ public class FortuneCookieServer extends Thread
       System.out.println("Socket timed out!");
     }catch(IOException e)
     {
-      System.out.println("Client Connection closed");
+      if (server != null) {
+      System.out.println("Client Connection closed" +server.getRemoteSocketAddress());
+      }
       // e.printStackTrace();
     }}
   }
 
-
+  /*
+   * Function that will be called when client requests for cookies
+   * @param number of cookies that the client requested
+   * checks if we have enough cookies that the client asked for
+   * and pick random cookies from the list of cookies we have
+   */
   public String[] sendCookies(int numCookiesRequested) {
-    String[] cookiesToBeSent = new String[numCookiesRequested]; //TODO handle a few obvious error cases
+    String[] cookiesToBeSent = new String[numCookiesRequested]; 
     for (int i = 0; i< numCookiesRequested; i++) {
       Random r = new Random();
       if (cookies.size() > numCookiesRequested) {
@@ -84,9 +97,12 @@ public class FortuneCookieServer extends Thread
   public static void main(String [] args)
   {
 
-    //int port = Integer.parseInt(args[0]);
     try
-    {
+    { 
+      // create a thread that will accept the connections and process
+      // clients request. 
+      // Note that there will be only one thread running so the handling of requests 
+      // from client would be sequential and we will not be having concurrency issues.
       Thread t = new FortuneCookieServer(9998);
       t.start();
     }catch(IOException e)

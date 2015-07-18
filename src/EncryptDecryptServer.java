@@ -10,10 +10,19 @@ import java.io.*;
 public class EncryptDecryptServer extends Thread
 {
    private ServerSocket serverSocket;
-   HashMap<Thread, Integer> threadsUsed = new HashMap<Thread, Integer>();
-   int i=0;
+   // this stores the thread that we use to process the request of the client
+   // this essentially becomes a threadpool of threads used and whenever client closes
+   // the connection, the entry will be removed from this pool.
+   // Since we know we use 20 threads, if a new request comes and the pool has
+   // less than 20, then we are good. 
+   HashMap<Socket, Thread> threadsUsed = new HashMap<Socket, Thread>();
+   // Counter so that we will know that we use 20 threads to the max
+   int THREADS_USED=0;
+   // a list of all socket connections we accept from our clients
    ArrayList<Socket> socks = new ArrayList<Socket>();
-   Thread[] threads = new Thread[50];
+   Thread[] threads = new Thread[20];
+   
+   // Ctor
    public EncryptDecryptServer() throws IOException
    {
      if(serverSocket==null) {
@@ -24,105 +33,45 @@ public class EncryptDecryptServer extends Thread
       
       
    }
-//   public void fillThreads () {
-//     System.out.println("hello" +threads);
-//     for (int i=0;i<50;i++) {
-//       try {
-//        threads[i] = new EncryptDecryptServer();
-//      } catch (IOException e) {
-//        // TODO Auto-generated catch block
-//        e.printStackTrace();
-//      }
-//       System.out.println("here" +threads[i]);
-//       threadsUsed.put(threads[i], 0);
-//     }
-//   }
+   
+   /*
+    * This the the method, that waits for clients, and accepts the connections
+    * Once connected, it will spawn of a new thread that will do the process 
+    * based on clients request. Once the client ends the connection, that thread
+    * can be used for a different client.
+    */
    public void waitForConnections(ServerSocket serverSocket) throws IOException {
      Socket server = new Socket();
      server = serverSocket.accept();
      socks.add(server);
-     if (i<20) {
-     threads[i] = new ProcessED(server);
-     threads[i].start();
-     i++;
+     // if we have less than 20 in our used thread poll then we can server
+     if (threadsUsed.size() < 20) {
+       // if the user threads are less than 20, then we are ok to create new threads
+       if (THREADS_USED<20) {
+     threads[THREADS_USED] = new ProcessED(server);
+     threads[THREADS_USED].start();
+     threadsUsed.put(server, threads[THREADS_USED]);
+     THREADS_USED++;
+     
+     } else {
+     // else, we need to find a thread that is already created and not in the threadsUsed
+       // once we get any such, then put it into threadsUsed
+       int usable = Integer.MAX_VALUE;
+       for (int i=0; i< threads.length; i++) {
+         if (!threadsUsed.values().contains(threads[i])) {
+           usable = i;
+         }
+       }
+       threads[usable] = new ProcessED(server);
+       threadsUsed.put(server, threads[usable]);
+     }
+     
     waitForConnections(serverSocket);
      }
-//     if (!threadsUsed.containsKey(1)) {
-//       System.out.println("next here");
-//       Boolean flag = false;
-//       System.out.println(threadsUsed);
-//       for (Entry<Thread, Integer> entry : threadsUsed.entrySet()) {
-//        System.out.println("here");
-//         if (entry.getValue() == 0 && !flag) {
-//           threadsUsed.put(entry.getKey(), 1);
-//           entry.getKey().start();
-//           flag = true;
-//         }
-//       }
-//     }
-     
-     
+
    }
 
-   public void run()
-   {
-     try
-     {
-     //  System.out.println("Waiting for client on port " +
-      //     serverSocket.getLocalPort() + "...");
-     //Socket server = serverSocket.accept();
-     //System.out.println("Just connected to "
-      //   + server.getRemoteSocketAddress());
-     DataInputStream in = null ;
-     DataOutputStream out = null ;
-      while(true)
-      {      
-            if (in == null) {
-            in = new DataInputStream(socks.get(socks.size()-1).getInputStream());                 
-            }
-            if (out == null) {
-              out = new DataOutputStream(socks.get(socks.size()-1).getOutputStream());
-              }
-            String input = in.readUTF();
-            
-            int output = encryptDecrypt(input);
-          
-            
-            if(input.charAt(0)=='e' || input.charAt(0)=='E') 
-             out.writeUTF("The encrypted code is: " +output);
-            if(input.charAt(0)=='d' || input.charAt(0)=='D') 
-              out.writeUTF("The decrypted code is: " +output);
-            
-           // server.close();
-        }}
-         catch(SocketTimeoutException s)
-         {
-            System.out.println("Socket timed out!");
-         }catch(IOException e)
-         {
-            //e.printStackTrace();
-         }
-      }
 
-   
-   public int encryptDecrypt(String input) {
-//    for(int i=1;input[i]!='\0';i++) {
-//        temp[i-1]=input[i];
-//        i++
-//      }
-    String temp = input.substring(1, input.length());
-    
-     if(input.charAt(0)=='e' || input.charAt(0)=='E')  {
-        return temp.hashCode();
-     }
-     else if(input.charAt(0)=='d' || input.charAt(0)=='D') {
-        return temp.hashCode();
-     } else {
-       return 0;
-     }
-        
-   }
-   
    
    public static void main(String [] args)
    {
