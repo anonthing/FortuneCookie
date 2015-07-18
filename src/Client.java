@@ -33,12 +33,16 @@ public class Client
           System.out.println("Please enter the number of cookie you want");
           String inputToServer = s.nextLine();
 
-
-
+          if (inputToServer.equalsIgnoreCase("close")) {
+            client.close();
+            System.exit(0);
+          } else {
+         
           out.writeUTF(inputToServer);
 
           System.out.println(":" + in.readUTF());
           client.close();
+          }
         }
         if (input.equalsIgnoreCase("encrypt") || input.equalsIgnoreCase("decrypt")) {
 
@@ -69,6 +73,7 @@ public class Client
             client.close();
             System.exit(0);
           }
+          System.exit(0);
         }
       } 
 
