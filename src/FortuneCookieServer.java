@@ -64,9 +64,8 @@ public class FortuneCookieServer extends Thread
       System.out.println("Socket timed out!");
     }catch(IOException e)
     {
-      if (server != null) {
-      System.out.println("Client Connection closed" +server.getRemoteSocketAddress());
-      }
+      System.out.println("Client Connection closed" );
+      
       // e.printStackTrace();
     }}
   }
