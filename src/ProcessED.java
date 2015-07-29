@@ -3,7 +3,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.Base64;
+
+import javax.xml.bind.DatatypeConverter;
 
 // this class will run, when the encryptdecrypt server spawns out a new thread
 
@@ -37,7 +40,7 @@ public class ProcessED extends Thread {
              }
            String input = in.readUTF();
            System.out.println("Got request from client to process(encrypt / decrypt) " +input);
-           byte[] output = encryptDecrypt(input);
+           String output = encryptDecrypt(input);
            
            if(input.charAt(0)=='e' || input.charAt(0)=='E') {
             out.writeUTF("The encrypted code is: " +new String(output));
@@ -62,19 +65,20 @@ public class ProcessED extends Thread {
   
   // strip out the first char in the string, coz we know we need 
  //  e or d to encrypt or decrypt
-  public byte[] encryptDecrypt(String input) {
+  public String encryptDecrypt(String input) {
 
   String temp = input.substring(1, input.length());
   
    if(input.charAt(0)=='e' || input.charAt(0)=='E')  {
      System.out.println("Encrypting string " +temp);
-      return Base64.getEncoder().encode(temp.getBytes());
+     return new String(DatatypeConverter.printBase64Binary(new String(temp).getBytes()));
+     // return Base64.getEncoder().encode(temp.getBytes());
    }
    else if(input.charAt(0)=='d' || input.charAt(0)=='D') {
      System.out.println("Decrypting string " +temp);
-      return Base64.getDecoder().decode(temp.getBytes());
+      return new String(DatatypeConverter.parseBase64Binary(temp));
    } else {
-     return "Cannot Process, Please prefix your string with e or d".getBytes();
+     return "Cannot Process, Please prefix your string with e or d";
    }
       
  }
