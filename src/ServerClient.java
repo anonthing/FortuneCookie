@@ -36,24 +36,26 @@ public class ServerClient extends Thread {
                 // Processes Fortune Cookie logic
                 if (input.equalsIgnoreCase("register") || input.equalsIgnoreCase("unregister")) {
 
-                   
-                   // String inputToServer = s.nextLine();
+
+                    // String inputToServer = s.nextLine();
 
 //                    if (inputToServer.equalsIgnoreCase("close")) {
 //                        client.close();
 //                        System.exit(0);
 //                    } else {
-                    System.out.println("Writing " +input + " " + serverName);
-                        out.writeUTF(input + " " + serverName);
+                    System.out.println("Writing " + input + " " + serverName);
+                    out.writeUTF(input + " " + serverName);
 
-                        System.out.println(in.readUTF());
+                    System.out.println(in.readUTF());
 
-                    }
-
-                else {
-                    /* Do nothing for now */
+                } else if (input.equalsIgnoreCase("close")) {
+                    out.writeUTF(input);
+                    client.close();
+                    System.exit(0);
+                } else {
+                    /* Err. Do nothing */
                 }
-                }
+            }
             } catch (UnknownHostException e1) {
             e1.printStackTrace();
         } catch (IOException e1) {

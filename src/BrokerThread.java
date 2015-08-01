@@ -14,7 +14,7 @@ public class BrokerThread extends Thread {
 
     Socket broker;
     HashMap<SocketAddress, String> registration;
-
+    Boolean flag = false;
     public BrokerThread (Socket broker, HashMap<SocketAddress, String> registration) {
         System.out.println("Start new thread for broker");
         this.broker = broker;
@@ -55,25 +55,38 @@ public class BrokerThread extends Thread {
                     if (registration.size() < 1) {
                         out.writeUTF("Sorry, Can't find Server");
                     } else {
+                        System.out.println("Current info in our table is" +registration);
                         for (Map.Entry<SocketAddress, String> entry : registration.entrySet()) {
                             if (entry.getValue().contains("FortuneCookie")) {
 
                                 System.out.println(entry.getKey().toString().split(":")[0].substring(1) + " " + entry.getValue().split(":")[1]);
                                 out.writeUTF(entry.getKey().toString().split(":")[0].substring(1) + " " + entry.getValue().split(":")[1]);
+                                flag = true;
                             }
+                        } if (!flag) {
+                            out.writeUTF("Sorry, Can't fine server");
                         }
                     }
                 } else if (split[1].equalsIgnoreCase("EncryptDecrypt")) {
                     if (registration.size() < 1) {
                         out.writeUTF("Sorry, Can't find Server");
                     } else {
+                        System.out.println("Current info in our table is" +registration);
                         for (Map.Entry<SocketAddress, String> entry : registration.entrySet()) {
                             if (entry.getValue().contains("EncryptDecrypt")) {
                                 out.writeUTF(entry.getKey().toString().split(":")[0].substring(1) + " " + entry.getValue().split(":")[1]);
+                                flag = true;
                             }
+
+                        } if (!flag) {
+                            out.writeUTF("Sorry, Can't fine server");
                         }
                     }
                 }
+
+            } else if (input.equalsIgnoreCase("close")) {
+                System.out.println("Closing the connection");
+                broker.close();
 
             } else {
 
@@ -89,11 +102,11 @@ public class BrokerThread extends Thread {
 
     public void handleRegistration(SocketAddress input, String serviceName) {
         registration.put(input, serviceName);
-        System.out.println("Registration map has" +registration);
+        System.out.println("Current info in our table is" +registration);
     }
     public void handleUnregistration(SocketAddress input, String serviceName) {
         registration.remove(input);
-        System.out.println("Registration map has" + registration);
+        System.out.println("Current info in our table is" +registration);
     }
 
 }

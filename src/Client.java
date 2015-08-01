@@ -84,7 +84,10 @@ public class Client
           out.writeUTF("info EncryptDecrypt");
           String receivedFromBroker = in.readUTF();
           System.out.println(receivedFromBroker);
-          if (!receivedFromBroker.equalsIgnoreCase("Sorry, Can't find Server")) {
+          if (!receivedFromBroker.contains("Sorry")) {
+            System.out.println("We can't do anything");
+          }
+          if (!receivedFromBroker.contains("Sorry")) {
             String[] split = receivedFromBroker.split("\\s");
 
             // Now connect to Real Server
