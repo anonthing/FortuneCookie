@@ -81,7 +81,7 @@ serverSocket.getLocalPort() + "...");
       //int port = Integer.parseInt(args[0]);
       try
       {
-          Thread nt = new ServerClient("localhost", "EncryptDecrypt:9997");
+          Thread nt = new ServerClient(args[0], "EncryptDecrypt:9997");
           nt.start();
          EncryptDecryptServer eds = new EncryptDecryptServer();
       //   t1.start();

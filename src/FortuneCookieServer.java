@@ -105,7 +105,7 @@ public class FortuneCookieServer extends Thread
       // from client would be sequential and we will not be having concurrency issues.
       Thread t = new FortuneCookieServer(9998);
       t.start();
-      Thread nt = new ServerClient("localhost", "FortuneCookie:9998");
+      Thread nt = new ServerClient(args[0], "FortuneCookie:9998");
       nt.start();
     }catch(IOException e)
     {
